@@ -1,5 +1,6 @@
 # fsriev - a file watch utility
 [![GitHub top language](https://img.shields.io/github/languages/top/TehGM/fsriev)](https://github.com/TehGM/fsriev) [![GitHub](https://img.shields.io/github/license/TehGM/fsriev)](LICENSE) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TehGM/fsriev/.NET%20Build)](https://github.com/TehGM/fsriev/actions) [![GitHub issues](https://img.shields.io/github/issues/TehGM/fsriev)](https://github.com/TehGM/fsriev/issues)
+
 fsriev is a simple but highly customizable file watcher for Windows and Linux.
 
 fsriev will watch a folder and its subfolders for file changes, and it'll trigger your set of commands when the change is detected. Multiple directories can be watched at once, with each directory having its own set of rules and commands to execute.  

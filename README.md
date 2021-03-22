@@ -36,9 +36,7 @@ Errors that occur when application is loading the configuration will be logged t
 2. Clone the repository.
 3. Build the project.
 
-## Development
-fsriev is still in development. Breaking changes might be introduced at any time.
-
+## Contributing
 If you spot a bug or want to suggest a feature or improvement, feel free to open a new [Issue](https://github.com/TehGM/fsriev/issues).
 
 ## License

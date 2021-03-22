@@ -35,7 +35,7 @@ namespace TehGM.Fsriev
         public IEnumerable<string> Commands { get; set; }
         /// <summary>Filesystem actions that will trigger the watcher command.</summary>
         /// <remarks>Defaults to <see cref="NotifyFilters.LastWrite"/> | <see cref="NotifyFilters.FileName"/>.</remarks>
-        public NotifyFilters ActionFilters { get; set; } = NotifyFilters.LastWrite | NotifyFilters.FileName;
+        public NotifyFilters NotifyFilters { get; set; } = NotifyFilters.LastWrite | NotifyFilters.FileName;
         /// <summary>Patterns that will cause the change to be skipped.</summary>
         public IEnumerable<string> Exclusions { get; set; }
     }

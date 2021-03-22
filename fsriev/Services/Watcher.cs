@@ -44,7 +44,7 @@ namespace TehGM.Fsriev.Services
 
             this._log.LogTrace("Watcher {Watcher}: creating {Type}", this.Name, typeof(FileSystemWatcher).Name);
             this._watch = new FileSystemWatcher(options.FolderPath);
-            this._watch.NotifyFilter = options.ActionFilters;
+            this._watch.NotifyFilter = options.NotifyFilters;
             foreach (string filter in options.FileFilters)
                 this._watch.Filters.Add(filter);
             this._watch.IncludeSubdirectories = options.Recursive;

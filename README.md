@@ -17,7 +17,7 @@ FolderPath | string | Yes | | Path of the folder to watch.
 FileFilters | array of strings | No | `*` | File name filters that need to match in order for commands to be executed. Pro-tip: this can be a file name to watch a specific file only.
 Recursive | bool | No | true | Whether watcher should watch for file changes in subfolders.
 SkipWhenBusy | bool | No | true | Watcher might receive multiple events at once. This switch controls if watcher should ignore them while already processing one.
-ActionFilters | string/int | No | LastWrite,FileName | Flags that will be checked to determine if the file has changed. See [NotifyFilters](https://docs.microsoft.com/en-gb/dotnet/api/system.io.notifyfilters?view=net-5.0) for a list of valid values.
+NotifyFilters | string/int | No | LastWrite,FileName | Flags that will be checked to determine if the file has changed. See [NotifyFilters](https://docs.microsoft.com/en-gb/dotnet/api/system.io.notifyfilters?view=net-5.0) for a list of valid values.
 Exclusions | array of strings | No | | Filters of ignored files. Useful for example when you want to ignore VS temporary files (`*~*.tmp`) or minified JS outputs (`*.min.*`).
 WorkingDirectory | string | No | Value of `FolderPath` | Working directory that will be used when executing the commands.
 Commands | array of strings | No | webcompiler -r . | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not. *Note: if no command is added, a warning will be output to logs.*

@@ -38,6 +38,8 @@ namespace TehGM.Fsriev.Services
         {
             lock (_lock)
             {
+                bool wasRunning = this._started;
+
                 // kill old watchers in case it's options change
                 if (this._watchers.Any())
                 {
@@ -63,7 +65,7 @@ namespace TehGM.Fsriev.Services
                     }
                     catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", opts.GetName())) { }
                 }
-                if (_started)
+                if (wasRunning)
                     this.StartWatchersInternal();
             }
         }

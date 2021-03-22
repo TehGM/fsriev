@@ -6,8 +6,6 @@ fsriev is a simple but highly customizable file watcher for Windows and Linux.
 fsriev will watch a folder and its subfolders for file changes, and it'll trigger your set of commands when the change is detected. Multiple directories can be watched at once, with each directory having its own set of rules and commands to execute.  
 fsriev uses [ASP.NET Core's Configuration system](https://docs.microsoft.com/en-gb/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) which allows for a large variety of configuration approaches without using command arguments - although these are possible to use, too! By default, fsriev will use a settings file.
 
-> Note: fsriev is currently in beta, and is designed primarily for purpose of compiling SASS using [Excubo.WebCompiler](https://github.com/excubo-ag/WebCompiler). This affects primarily the exclusion filtering feature, which will be made more flexible for v1.0.0 release.
-
 ### Configuration
 The primary means of configuring fsriev is through [appsettings.json](fsriev/appsettings.json) file. Each directory to watch needs to be added as a new JSON object to `Watchers` array.
 
@@ -16,13 +14,13 @@ Property Name | Type   | Required? | Default Value   | Description
 Name | string | No | Unnamed Watcher | The name of the watcher that will appear in log messages. Useful to recognize watcher when running multiple.
 Enabled | bool | No | true | Whether the watcher is enabled. Allows disabling the watcher without removing it from the configuration.
 FolderPath | string | Yes | | Path of the folder to watch.
-FileFilters | array of strings | No | `*.scss`, `*.js` | File name filters that need to match in order for commands to be executed. Pro-tip: this can be a file name to watch a specific file only.
+FileFilters | array of strings | No | `*` | File name filters that need to match in order for commands to be executed. Pro-tip: this can be a file name to watch a specific file only.
 Recursive | bool | No | true | Whether watcher should watch for file changes in subfolders.
 SkipWhenBusy | bool | No | true | Watcher might receive multiple events at once. This switch controls if watcher should ignore them while already processing one.
 ActionFilters | string/int | No | LastWrite,FileName | Flags that will be checked to determine if the file has changed. See [NotifyFilters](https://docs.microsoft.com/en-gb/dotnet/api/system.io.notifyfilters?view=net-5.0) for a list of valid values.
 Exclusions | array of strings | No | | Filters of ignored files. Useful for example when you want to ignore VS temporary files (`*~*.tmp`) or minified JS outputs (`*.min.*`).
 WorkingDirectory | string | No | Value of `FolderPath` | Working directory that will be used when executing the commands.
-Commands | array of strings | No | webcompiler -r . | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not.
+Commands | array of strings | No | webcompiler -r . | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not. *Note: if no command is added, a warning will be output to logs.*
 
 #### Logging
 By default the application will log to terminal window and to `%PROGRAMDATA%/TehGM/fsriev/logs`.

@@ -12,6 +12,7 @@ namespace TehGM.Fsriev.Services
         public bool IsBusy { get; private set; }
 
         private readonly FileSystemWatcher _watch;
+        private readonly IEnumerable<string> _commands;
         private readonly ITerminal _terminal;
         private readonly WatcherOptions _options;
         private readonly ILogger _log;
@@ -24,18 +25,25 @@ namespace TehGM.Fsriev.Services
             if (string.IsNullOrWhiteSpace(options.FolderPath))
                 throw new ArgumentNullException(nameof(options.FolderPath));
 
+            this._log = log;
             this._options = options;
             this._terminal = terminal;
-            this._log = log;
             this.Name = options.GetName();
 
+            this._log.LogTrace("Watcher {Watcher}: checking commands", this.Name);
+            this._commands = options.Commands?.Where(c => !string.IsNullOrWhiteSpace(c)) ?? Enumerable.Empty<string>();
+            if (!this._commands.Any())
+                this._log.LogWarning("Watcher {Watcher}: no commands specified", this.Name);
+
+            this._log.LogTrace("Watcher {Watcher}: building exclusion filters", this.Name);
+            this._exclusions = options.Exclusions?.Select(f => ExclusionFilter.Build(f)) ?? Enumerable.Empty<ExclusionFilter>();
+
+            this._log.LogTrace("Watcher {Watcher}: creating {Type}", this.Name, typeof(FileSystemWatcher).Name);
             this._watch = new FileSystemWatcher(options.FolderPath);
             this._watch.NotifyFilter = options.ActionFilters;
             foreach (string filter in options.FileFilters)
                 this._watch.Filters.Add(filter);
-            this._exclusions = options.Exclusions?.Select(f => ExclusionFilter.Build(f)) ?? Enumerable.Empty<ExclusionFilter>();
             this._watch.IncludeSubdirectories = options.Recursive;
-
             this._watch.Changed += OnFileChanged;
             this._watch.Created += OnFileChanged;
             this._watch.Renamed += OnFileChanged;
@@ -74,15 +82,20 @@ namespace TehGM.Fsriev.Services
                 this.IsBusy = true;
                 try
                 {
-                    this._log.LogInformation("File {File} changed, watcher {Watcher} running", e.FullPath, this.Name);
-                    foreach (string cmd in this._options.Commands)
+                    if (this._commands.Any())
                     {
-                        string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)
-                            ? this._options.FolderPath : this._options.WorkingDirectory;
-                        int status = this._terminal.ExecuteAndWait(cmd, workingDir);
-                        if (status != 0)
-                            this._log.LogError("Watcher {Watcher} exited with error code {Code}", this.Name, status);
+                        this._log.LogInformation("Watch {Watcher}: File {File} changed, running commands");
+                        foreach (string cmd in this._options.Commands)
+                        {
+                            string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)
+                                ? this._options.FolderPath : this._options.WorkingDirectory;
+                            int status = this._terminal.ExecuteAndWait(cmd, workingDir);
+                            if (status != 0)
+                                this._log.LogError("Watcher {Watcher} exited with error code {Code}", this.Name, status);
+                        }
                     }
+                    else
+                        this._log.LogInformation("Watch {Watcher}: File {File} changed");
                 }
                 catch (Exception ex) when (ex.LogAsError(this._log, "An exception occured in watcher {Watcher}")) { }
                 finally

@@ -20,8 +20,6 @@ FileFilters | array of strings | No | `*.scss`, `*.js` | File name filters that 
 Recursive | bool | No | true | Whether watcher should watch for file changes in subfolders.
 SkipWhenBusy | bool | No | true | Watcher might receive multiple events at once. This switch controls if watcher should ignore them while already processing one.
 ActionFilters | string/int | No | LastWrite,FileName | Flags that will be checked to determine if the file has changed. See [NotifyFilters](https://docs.microsoft.com/en-gb/dotnet/api/system.io.notifyfilters?view=net-5.0) for a list of valid values.
-IgnoreMinified | bool | No | true | Whether the watcher should ignore changes to `*.min.*` files. *This property will be replaced in a future version.*
-IgnoreTemp | bool | No | true | Whether the watcher should ignore changes to VS-generated temporary files. Temporary file is any file that contains a `~` and has `.tmp` extension. *This property will be replaced in a future version.*
 Exclusions | array of strings | No | | Filters of ignored files. Useful for example when you want to ignore VS temporary files (`*~*.tmp`) or minified JS outputs (`*.min.*`).
 WorkingDirectory | string | No | Value of `FolderPath` | Working directory that will be used when executing the commands.
 Commands | array of strings | No | webcompiler -r . | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not.

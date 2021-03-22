@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace TehGM.Fsriev.Services
@@ -18,7 +21,8 @@ namespace TehGM.Fsriev.Services
         private readonly ILogger _log;
         private readonly IEnumerable<ExclusionFilter> _exclusions;
         private bool _disposed;
-        private readonly object _lock = new object();
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public Watcher(WatcherOptions options, ITerminal terminal, ILogger log)
         {
@@ -50,6 +54,9 @@ namespace TehGM.Fsriev.Services
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
+            => OnFileChangedAsync(sender, e).GetAwaiter().GetResult();
+
+        private async Task OnFileChangedAsync(object sender, FileSystemEventArgs e)
         {
             using IDisposable logScope = this._log.BeginScope(new Dictionary<string, object>
             {
@@ -65,9 +72,12 @@ namespace TehGM.Fsriev.Services
                 return;
             }
 
-            lock (_lock)
+            CancellationToken cancellationToken = this._cts.Token;
+            await this._lock.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
             {
                 // check exclusion filters
+                // do it before marking as busy, to prevent skipping trigger when at least one change wasn't on exclusion list
                 foreach (ExclusionFilter exclusion in this._exclusions)
                 {
                     this._log.LogTrace("Watcher {Watcher}: Checking exclusion {Exclusion}", this.Name, exclusion);
@@ -79,6 +89,7 @@ namespace TehGM.Fsriev.Services
                     }
                 }
 
+                // flag as busy to prevent multi-file changes spam
                 this.IsBusy = true;
                 try
                 {
@@ -89,9 +100,24 @@ namespace TehGM.Fsriev.Services
                         {
                             string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)
                                 ? this._options.FolderPath : this._options.WorkingDirectory;
-                            int status = this._terminal.ExecuteAndWait(cmd, workingDir);
-                            if (status != 0)
-                                this._log.LogError("Watcher {Watcher} exited with error code {Code}", this.Name, status);
+
+                            // execute and wait
+                            using Process prc = this._terminal.Execute(cmd, workingDir);
+                            try
+                            {
+                                await prc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                                if (prc.ExitCode != 0)
+                                    this._log.LogError("Watcher {Watcher}: process exited with error code {Code}", this.Name, prc.ExitCode);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                // if didn't exist, but watcher is disposing, then force kill the process
+                                if (!prc.HasExited)
+                                {
+                                    this._log.LogDebug("Watcher {Watcher}: Force killing process {Process}", this.Name, cmd);
+                                    prc.Kill(true);
+                                }
+                            }
                         }
                     }
                     else
@@ -102,6 +128,10 @@ namespace TehGM.Fsriev.Services
                 {
                     this.IsBusy = false;
                 }
+            }
+            finally
+            {
+                this._lock.Release();
             }
         }
 
@@ -126,10 +156,16 @@ namespace TehGM.Fsriev.Services
             if (_disposed)
                 return;
 
+            // kill the watcher
             try { this._watch.Changed -= OnFileChanged; } catch { }
             try { this._watch.Created -= OnFileChanged; } catch { }
             try { this._watch.Renamed -= OnFileChanged; } catch { }
             try { this._watch.Dispose(); } catch { }
+            // cancel any running operation
+            try { this._cts.Cancel(); } catch { }
+            try { this._cts.Dispose(); } catch { }
+            // dispose locks
+            try { this._lock.Dispose(); } catch { }
             this._disposed = true;
         }
 

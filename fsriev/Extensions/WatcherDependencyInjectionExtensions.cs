@@ -26,8 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public class ConfigureWatcherOptions : IPostConfigureOptions<ApplicationOptions>
         {
-            private static readonly string[] _defaultCommands = new string[] { "webcompiler -r ." };
-            private static readonly string[] _defaultFileFilters = new string[] { "*.scss", "*.js" };
+            private static readonly string[] _defaultFileFilters = new string[] { "*" };
 
             public void PostConfigure(string name, ApplicationOptions options)
             {
@@ -35,8 +34,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 {
                     if (watcher.FileFilters == null)
                         watcher.FileFilters = _defaultFileFilters;
-                    if (watcher.Commands == null)
-                        watcher.Commands = _defaultCommands;
                 }
             }
         }

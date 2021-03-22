@@ -74,8 +74,6 @@ namespace TehGM.Fsriev.Services
             {
                 if (this._started)
                     return;
-
-                this._started = true;
                 this.StartWatchersInternal();
             }
         }
@@ -86,26 +84,28 @@ namespace TehGM.Fsriev.Services
             {
                 if (!this._started)
                     return;
-                this._started = false;
                 this.StopWatchersInternal();
             }
         }
 
         private void StartWatchersInternal()
         {
+            this._started = true;
             foreach (Watcher watcher in this._watchers)
                 watcher.Start();
         }
 
         private void StopWatchersInternal()
         {
+            this._started = false;
             foreach (Watcher watcher in this._watchers)
                 watcher.Stop();
         }
 
         private void KillWatchers()
         {
-            this.StopWatchersInternal();
+            if (this._started)
+                this.StopWatchersInternal();
             foreach (Watcher watcher in this._watchers)
                 watcher.Dispose();
             this._watchers.Clear();

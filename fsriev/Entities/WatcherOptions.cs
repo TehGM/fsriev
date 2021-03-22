@@ -27,12 +27,6 @@ namespace TehGM.Fsriev
         /// <summary>Watch folder recursively.</summary>
         /// <remarks>Defaults to true.</remarks>
         public bool Recursive { get; set; } = true;
-        /// <summary>Ignore *.min.* files?</summary>
-        /// <remarks>Defaults to true.</remarks>
-        public bool IgnoreMinified { get; set; } = true;
-        /// <summary>Ignore *~*.TMP files?</summary>
-        /// <remarks>Defaults to true.</remarks>
-        public bool IgnoreTemp { get; set; } = true;
         /// <summary>Working directory to run commands in.</summary>
         /// <remarks>If not specified, will use <see cref="FolderPath"/>.</remarks>
         public string WorkingDirectory { get; set; } = null;
@@ -41,6 +35,8 @@ namespace TehGM.Fsriev
         public IEnumerable<string> Commands { get; set; }
         /// <summary>Filesystem actions that will trigger the watcher command.</summary>
         /// <remarks>Defaults to <see cref="NotifyFilters.LastWrite"/> | <see cref="NotifyFilters.FileName"/>.</remarks>
-        public NotifyFilters ActionFilters { get; set; } = NotifyFilters.LastWrite | NotifyFilters.FileName;
+        public NotifyFilters NotifyFilters { get; set; } = NotifyFilters.LastWrite | NotifyFilters.FileName;
+        /// <summary>Patterns that will cause the change to be skipped.</summary>
+        public IEnumerable<string> Exclusions { get; set; }
     }
 }

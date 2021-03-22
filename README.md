@@ -1,5 +1,5 @@
 # fsriev - a file watch utility
-[![GitHub top language](https://img.shields.io/github/languages/top/TehGM/fsriev)](https://github.com/TehGM/fsriev) [![GitHub](https://img.shields.io/github/license/TehGM/fsriev)](LICENSE) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TehGM/fsriev/.NET%20Build)](https://github.com/TehGM/fsriev/actions) [![GitHub issues](https://img.shields.io/github/issues/TehGM/fsriev)](https://github.com/TehGM/fsriev/issues)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/TehGM/fsriev)](https://github.com/TehGM/fsriev/releases)[![GitHub top language](https://img.shields.io/github/languages/top/TehGM/fsriev)](https://github.com/TehGM/fsriev) [![GitHub](https://img.shields.io/github/license/TehGM/fsriev)](LICENSE) [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/TehGM/fsriev/.NET%20Build)](https://github.com/TehGM/fsriev/actions) [![GitHub issues](https://img.shields.io/github/issues/TehGM/fsriev)](https://github.com/TehGM/fsriev/issues)
 
 fsriev is a simple but highly customizable file watcher for Windows and Linux.
 

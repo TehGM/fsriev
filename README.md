@@ -29,6 +29,8 @@ Logging configuration is done via [logsettings.json](fsriev/logsettings.json). S
 
 Errors that occur when application is loading the configuration will be logged to `%PROGRAMDATA%/TehGM/fsriev/logs`.
 
+> Note: On Windows `%PROGRAMDATA%` will most likely be `C:\ProgramData`, while on linux it'll most likely be `/mnt/share`.
+
 ## Building
 1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0).
 2. Clone the repository.

@@ -6,7 +6,7 @@ fsriev is a simple but highly customizable file watcher for Windows and Linux.
 fsriev will watch a folder and its subfolders for file changes, and it'll trigger your set of commands when the change is detected. Multiple directories can be watched at once, with each directory having its own set of rules and commands to execute.  
 fsriev uses [ASP.NET Core's Configuration system](https://docs.microsoft.com/en-gb/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0) which allows for a large variety of configuration approaches without using command arguments - although these are possible to use, too! By default, fsriev will use a settings file.
 
-## Download
+### Download
 See [releases](https://github.com/TehGM/fsriev/releases/) to download the latest version for your machine.  
 Alternatively, [build](#Building) the project yourself.
 

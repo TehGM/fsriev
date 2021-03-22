@@ -20,7 +20,7 @@ SkipWhenBusy | bool | No | true | Watcher might receive multiple events at once.
 NotifyFilters | string/int | No | LastWrite,FileName | Flags that will be checked to determine if the file has changed. See [NotifyFilters](https://docs.microsoft.com/en-gb/dotnet/api/system.io.notifyfilters?view=net-5.0) for a list of valid values.
 Exclusions | array of strings | No | | Filters of ignored files. Useful for example when you want to ignore VS temporary files (`*~*.tmp`) or minified JS outputs (`*.min.*`).
 WorkingDirectory | string | No | Value of `FolderPath` | Working directory that will be used when executing the commands.
-Commands | array of strings | No | webcompiler -r . | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not. *Note: if no command is added, a warning will be output to logs.*
+Commands | array of strings | No | | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not. *Note: if no command is added, a warning will be output to logs.*
 
 #### Logging
 By default the application will log to terminal window and to `%PROGRAMDATA%/TehGM/fsriev/logs`.

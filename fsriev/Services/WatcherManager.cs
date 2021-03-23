@@ -56,7 +56,9 @@ namespace TehGM.Fsriev.Services
 
                 // get all enabled watchers, and start them
                 IEnumerable<WatcherOptions> enabledWatchers = options.Where(w => w.Enabled);
-                this._log.LogInformation("Initializing {Count} watchers", enabledWatchers.Count());
+                int enabledCount = enabledWatchers.Count();
+                this._log.LogDebug("Watchers configs found: {EnabledCount} enabled, {DisabledCount} disabled", enabledCount, options.Count() - enabledCount);
+                this._log.LogInformation("Initializing {Count} watchers", enabledCount);
                 foreach (WatcherOptions opts in enabledWatchers)
                 {
                     try

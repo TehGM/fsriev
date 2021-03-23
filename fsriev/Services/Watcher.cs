@@ -68,7 +68,7 @@ namespace TehGM.Fsriev.Services
             // this is cause file watch can raise multiple events at once
             if (this.IsBusy && this._options.SkipWhenBusy)
             {
-                this._log.LogDebug("Watcher {Watcher}: already busy, skipping file {File}");
+                this._log.LogDebug("Watcher {Watcher}: Already busy, skipping file {File}");
                 return;
             }
 
@@ -107,7 +107,9 @@ namespace TehGM.Fsriev.Services
                             {
                                 await prc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
                                 if (prc.ExitCode != 0)
-                                    this._log.LogError("Watcher {Watcher}: process exited with error code {Code}", this.Name, prc.ExitCode);
+                                    this._log.LogError("Watcher {Watcher}: Process exited with error code {Code}", this.Name, prc.ExitCode);
+                                else
+                                    this._log.LogTrace("Watcher {Watcher}: Done executing process");
                             }
                             catch (OperationCanceledException)
                             {
@@ -120,6 +122,7 @@ namespace TehGM.Fsriev.Services
                                 throw;
                             }
                         }
+                        this._log.LogInformation("Watcher {Watcher}: Done executing commands");
                     }
                     else
                         this._log.LogInformation("Watch {Watcher}: File {File} changed");

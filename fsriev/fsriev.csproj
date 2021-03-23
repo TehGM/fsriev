@@ -27,16 +27,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
     <None Remove="logsettings.Development.json" />
     <None Remove="logsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="logsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="logsettings.Development.json">
+    <Content Include="logsettings.Development.json" Condition="Exists('logsettings.Development.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.json">

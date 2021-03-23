@@ -117,12 +117,14 @@ namespace TehGM.Fsriev.Services
                                     this._log.LogDebug("Watcher {Watcher}: Force killing process {Process}", this.Name, cmd);
                                     prc.Kill(true);
                                 }
+                                throw;
                             }
                         }
                     }
                     else
                         this._log.LogInformation("Watch {Watcher}: File {File} changed");
                 }
+                catch (OperationCanceledException) { }
                 catch (Exception ex) when (ex.LogAsError(this._log, "An exception occured in watcher {Watcher}")) { }
                 finally
                 {

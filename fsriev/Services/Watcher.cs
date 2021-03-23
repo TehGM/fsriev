@@ -125,7 +125,7 @@ namespace TehGM.Fsriev.Services
                         this._log.LogInformation("Watcher {Watcher}: Done executing commands");
                     }
                     else
-                        this._log.LogInformation("Watch {Watcher}: File {File} changed");
+                        this._log.LogInformation("Watcher {Watcher}: File {File} changed");
                 }
                 catch (OperationCanceledException) { }
                 catch (Exception ex) when (ex.LogAsError(this._log, "An exception occured in watcher {Watcher}")) { }

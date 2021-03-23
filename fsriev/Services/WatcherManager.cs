@@ -38,6 +38,8 @@ namespace TehGM.Fsriev.Services
         {
             lock (_lock)
             {
+                bool wasRunning = this._started;
+
                 // kill old watchers in case it's options change
                 if (this._watchers.Any())
                 {
@@ -54,7 +56,11 @@ namespace TehGM.Fsriev.Services
 
                 // get all enabled watchers, and start them
                 IEnumerable<WatcherOptions> enabledWatchers = options.Where(w => w.Enabled);
-                this._log.LogInformation("Initializing {Count} watchers", enabledWatchers.Count());
+                int enabledCount = enabledWatchers.Count();
+                int disabledCount = options.Count() - enabledCount;
+                this._log.LogInformation("Initializing {Count} watchers", enabledCount);
+                if (disabledCount != 0)
+                    this._log.LogDebug("Disabled watchers: {Count}", disabledCount);
                 foreach (WatcherOptions opts in enabledWatchers)
                 {
                     try
@@ -63,7 +69,7 @@ namespace TehGM.Fsriev.Services
                     }
                     catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", opts.GetName())) { }
                 }
-                if (_started)
+                if (wasRunning)
                     this.StartWatchersInternal();
             }
         }

@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>TehGM.Fsriev</RootNamespace>
     <AssemblyName>fsriev</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Authors>TehGM</Authors>
     <Description>A simple but highly configurable file watch utility</Description>
     <Copyright>Copyright (c) 2021 TehGM</Copyright>
@@ -13,30 +13,29 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/TehGM/fsriev</PackageProjectUrl>
     <PackageTags>watch, filewatch</PackageTags>
-    <PackageReleaseNotes>- Added flexible Exclusion filters.
-- Removed IgnoreTemp and IgnoreMinified config values.
-- Added proper handling for exiting application when command is running.
-- Default commands have been removed.
-- Added a warning log when no command has been set.
-- Default File Filters are now set to just `*` (all files).
-- Renamed ActionFilters to NotifyFilters
-- Fix double watcher stop logs when application is exiting.
-- Removed ExecuteAndWait extension method for ITerminal.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fix hot-reload of config file.
+- Kill commands loop when exiting.
+- Add finish logs when executing commands has finished.
+- Count of disabled watchers will be now shown in debug logs.</PackageReleaseNotes>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.Development.json" />
     <None Remove="appsettings.json" />
     <None Remove="logsettings.Development.json" />
     <None Remove="logsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.Development.json" Condition="Exists('appsettings.Development.json')">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="logsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="logsettings.Development.json">
+    <Content Include="logsettings.Development.json" Condition="Exists('logsettings.Development.json')">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.json">

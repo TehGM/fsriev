@@ -22,7 +22,7 @@ namespace TehGM.Fsriev
         [Required]
         public string FolderPath { get; set; }
         /// <summary>File filters</summary>
-        /// <remarks>Defaults to '*.scss' and '*.js'.</remarks>
+        /// <remarks>Defaults to '*'.</remarks>
         public IEnumerable<string> FileFilters { get; set; }
         /// <summary>Watch folder recursively.</summary>
         /// <remarks>Defaults to true.</remarks>
@@ -31,7 +31,6 @@ namespace TehGM.Fsriev
         /// <remarks>If not specified, will use <see cref="FolderPath"/>.</remarks>
         public string WorkingDirectory { get; set; } = null;
         /// <summary>Commands to run when matching files change.</summary>
-        /// <remarks>Defaults to single command 'webcompiler -r .'.</remarks>
         public IEnumerable<string> Commands { get; set; }
         /// <summary>Filesystem actions that will trigger the watcher command.</summary>
         /// <remarks>Defaults to <see cref="NotifyFilters.LastWrite"/> | <see cref="NotifyFilters.FileName"/>.</remarks>

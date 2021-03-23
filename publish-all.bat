@@ -2,7 +2,11 @@
 
 set outputdir=fsriev\bin\Output\
 set publishdir=fsriev\bin\Release\net5.0\publish\
-if not exist %outputdir% mkdir %outputdir%
+
+:: clean output directories
+if exist %outputdir% rmdir /s /q %outputdir%
+if exist %publishdir% rmdir /s /q %publishdir%
+mkdir %outputdir%
 
 set name="Portable (Framework Dependent)"
 echo Publishing: %name%

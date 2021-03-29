@@ -35,6 +35,11 @@ Errors that occur when application is loading the configuration will be logged t
 
 > Note: On Windows `%PROGRAMDATA%` will most likely be `C:\ProgramData`, while on linux it'll most likely be `/mnt/share`.
 
+### Important Notes
+- Do **NOT** close fsriev by pressing X if any of the commands is still running. Due to terminal limitations, fsriev will not have any chance to kill command process.  
+Instead, send shut down signal to fsriev - for example by pressing `Ctrl+C`. Doing so will notify fsriev to kill commands before exiting.
+- Currently, the default application config contains example configuration. It will most likely log an error due to directory not existing. Simply update your configuration to solve this.
+
 ## Building
 1. Install [.NET 5 SDK](https://dotnet.microsoft.com/download/dotnet/5.0).
 2. Clone the repository.

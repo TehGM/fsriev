@@ -11,6 +11,7 @@ namespace TehGM.Fsriev.Services
 {
     public class WatcherManager : IWatcherManager, IHostedService, IDisposable
     {
+        private readonly IOptionsMonitor<ApplicationOptions> _options;
         private readonly ICollection<Watcher> _watchers;
         private readonly ITerminal _terminal;
         private readonly ILogger _log;
@@ -24,6 +25,7 @@ namespace TehGM.Fsriev.Services
             ILogger<WatcherManager> log, ILogger<Watcher> watcherLog)
         {
             this._watchers = new List<Watcher>();
+            this._options = options;
             this._terminal = terminal;
             this._log = log;
             this._watcherLog = watcherLog;
@@ -65,7 +67,7 @@ namespace TehGM.Fsriev.Services
                 {
                     try
                     {
-                        this._watchers.Add(new Watcher(opts, this._terminal, this._watcherLog));
+                        this._watchers.Add(new Watcher(opts, this._options.CurrentValue, this._terminal, this._watcherLog));
                     }
                     catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", opts.GetName())) { }
                 }

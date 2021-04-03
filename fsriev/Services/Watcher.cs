@@ -95,7 +95,7 @@ namespace TehGM.Fsriev.Services
                 {
                     if (this._commands.Any())
                     {
-                        this._log.LogInformation("Watch {Watcher}: File {File} changed, running commands");
+                        this._log.LogInformation("Watcher {Watcher}: File {File} changed, running commands");
                         foreach (string cmd in this._options.Commands)
                         {
                             string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)

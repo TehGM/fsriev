@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TehGM.Fsriev;
@@ -32,9 +33,28 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 foreach (WatcherOptions watcher in options.Watchers)
                 {
+                    // normalize paths
+                    watcher.FolderPath = NormalizePath(watcher.FolderPath);
+                    watcher.WorkingDirectory = NormalizePath(watcher.WorkingDirectory);
+
+                    // verify used filters
                     if (watcher.FileFilters == null)
                         watcher.FileFilters = _defaultFileFilters;
                 }
+            }
+
+            private static string NormalizePath(string path)
+            {
+                if (path == null)
+                    return null;
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    return path.Replace('/', '\\');
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    return path.Replace('\\', '/');
+
+                // fallback: just return unchanged
+                return path;
             }
         }
     }

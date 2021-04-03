@@ -14,15 +14,18 @@ namespace TehGM.Fsriev.Services
         public string Name { get; }
         public bool IsBusy { get; private set; }
 
+        // options and services
+        private readonly WatcherOptions _options;
+        private readonly ApplicationOptions _applicationOptions;
         private readonly FileSystemWatcher _watch;
         private readonly IEnumerable<string> _commands;
         private readonly ITerminal _terminal;
-        private readonly WatcherOptions _options;
-        private readonly ApplicationOptions _applicationOptions;
         private readonly ILogger _log;
+        // calculated options cache
         private readonly IEnumerable<ExclusionFilter> _exclusions;
+        private readonly string _workingDirectory;
+        // flow control
         private bool _disposed;
-
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly object _outputLock = new object();
@@ -45,6 +48,9 @@ namespace TehGM.Fsriev.Services
 
             this._log.LogTrace("Watcher {Watcher}: building exclusion filters", this.Name);
             this._exclusions = options.Exclusions?.Select(f => ExclusionFilter.Build(f)) ?? Enumerable.Empty<ExclusionFilter>();
+
+            this._log.LogTrace("Watcher {Watcher}: determining working directory", this.Name);
+            this._workingDirectory = string.IsNullOrWhiteSpace(this._options.WorkingDirectory) ? this._options.FolderPath : this._options.WorkingDirectory;
 
             this._log.LogTrace("Watcher {Watcher}: creating {Type}", this.Name, typeof(FileSystemWatcher).Name);
             this._watch = new FileSystemWatcher(options.FolderPath);
@@ -122,11 +128,8 @@ namespace TehGM.Fsriev.Services
 
         private async Task RunProcessAsync(string command, CancellationToken cancellationToken)
         {
-            string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)
-                ? this._options.FolderPath : this._options.WorkingDirectory;
-
             // execute and wait
-            using Process prc = this._terminal.Create(command, workingDir);
+            using Process prc = this._terminal.Create(command, this._workingDirectory);
 
             if (this._options.ShowCommandOutput)
             {

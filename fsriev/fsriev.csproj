@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>TehGM.Fsriev</RootNamespace>
     <AssemblyName>fsriev</AssemblyName>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Authors>TehGM</Authors>
     <Description>A simple but highly configurable file watch utility</Description>
     <Copyright>Copyright (c) 2021 TehGM</Copyright>
@@ -13,10 +13,11 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/TehGM/fsriev</PackageProjectUrl>
     <PackageTags>watch, filewatch</PackageTags>
-    <PackageReleaseNotes>- Fix hot-reload of config file.
-- Kill commands loop when exiting.
-- Add finish logs when executing commands has finished.
-- Count of disabled watchers will be now shown in debug logs.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added displaying command output.
+- Working directory is now pre-calculated on worker creation.
+- Normalize path slashes on config load.
+- Fix fallback log not being initialized on some systems.
+- Fix some log messages inconsitencies.</PackageReleaseNotes>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>

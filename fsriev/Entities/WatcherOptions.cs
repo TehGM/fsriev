@@ -37,5 +37,7 @@ namespace TehGM.Fsriev
         public NotifyFilters NotifyFilters { get; set; } = NotifyFilters.LastWrite | NotifyFilters.FileName;
         /// <summary>Patterns that will cause the change to be skipped.</summary>
         public IEnumerable<string> Exclusions { get; set; }
+        /// <summary>Whether command output will be displayed.</summary>
+        public bool ShowCommandOutput { get; set; } = true;
     }
 }

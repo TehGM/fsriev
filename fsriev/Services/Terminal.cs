@@ -15,7 +15,7 @@ namespace TehGM.Fsriev.Services
         }
 
         /// <inheritdoc/>
-        public Process Execute(string command, string workingDirectory, bool asRoot)
+        public Process Create(string command, string workingDirectory, bool asRoot)
         {
             // create process, start it and immediately return
             _log.LogDebug("Creating process: {Command}", command);
@@ -39,14 +39,11 @@ namespace TehGM.Fsriev.Services
                     prc.StartInfo.Verb = "runas";
             }
             else
-                throw new PlatformNotSupportedException($"{nameof(Execute)} is only supported on Windows and Linux platforms.");
+                throw new PlatformNotSupportedException($"{nameof(Terminal)} is only supported on Windows and Linux platforms.");
 
             prc.StartInfo.WorkingDirectory = string.IsNullOrWhiteSpace(workingDirectory) ? Environment.CurrentDirectory : workingDirectory;
             prc.StartInfo.UseShellExecute = false;
             prc.StartInfo.CreateNoWindow = true;
-
-            _log.LogTrace("Starting the process");
-            prc.Start();
             return prc;
         }
     }

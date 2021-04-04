@@ -14,23 +14,30 @@ namespace TehGM.Fsriev.Services
         public string Name { get; }
         public bool IsBusy { get; private set; }
 
+        // options and services
+        private readonly WatcherOptions _options;
+        private readonly ApplicationOptions _applicationOptions;
         private readonly FileSystemWatcher _watch;
         private readonly IEnumerable<string> _commands;
         private readonly ITerminal _terminal;
-        private readonly WatcherOptions _options;
         private readonly ILogger _log;
+        // calculated options cache
         private readonly IEnumerable<ExclusionFilter> _exclusions;
+        private readonly string _workingDirectory;
+        // flow control
         private bool _disposed;
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly object _outputLock = new object();
 
-        public Watcher(WatcherOptions options, ITerminal terminal, ILogger log)
+        public Watcher(WatcherOptions options, ApplicationOptions applicationOptions, ITerminal terminal, ILogger log)
         {
             if (string.IsNullOrWhiteSpace(options.FolderPath))
                 throw new ArgumentNullException(nameof(options.FolderPath));
 
             this._log = log;
             this._options = options;
+            this._applicationOptions = applicationOptions;
             this._terminal = terminal;
             this.Name = options.GetName();
 
@@ -41,6 +48,9 @@ namespace TehGM.Fsriev.Services
 
             this._log.LogTrace("Watcher {Watcher}: building exclusion filters", this.Name);
             this._exclusions = options.Exclusions?.Select(f => ExclusionFilter.Build(f)) ?? Enumerable.Empty<ExclusionFilter>();
+
+            this._log.LogTrace("Watcher {Watcher}: determining working directory", this.Name);
+            this._workingDirectory = string.IsNullOrWhiteSpace(this._options.WorkingDirectory) ? this._options.FolderPath : this._options.WorkingDirectory;
 
             this._log.LogTrace("Watcher {Watcher}: creating {Type}", this.Name, typeof(FileSystemWatcher).Name);
             this._watch = new FileSystemWatcher(options.FolderPath);
@@ -95,33 +105,9 @@ namespace TehGM.Fsriev.Services
                 {
                     if (this._commands.Any())
                     {
-                        this._log.LogInformation("Watch {Watcher}: File {File} changed, running commands");
+                        this._log.LogInformation("Watcher {Watcher}: File {File} changed, running commands");
                         foreach (string cmd in this._options.Commands)
-                        {
-                            string workingDir = string.IsNullOrWhiteSpace(this._options.WorkingDirectory)
-                                ? this._options.FolderPath : this._options.WorkingDirectory;
-
-                            // execute and wait
-                            using Process prc = this._terminal.Execute(cmd, workingDir);
-                            try
-                            {
-                                await prc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-                                if (prc.ExitCode != 0)
-                                    this._log.LogError("Watcher {Watcher}: Process exited with error code {Code}", this.Name, prc.ExitCode);
-                                else
-                                    this._log.LogTrace("Watcher {Watcher}: Done executing process");
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                // if didn't exist, but watcher is disposing, then force kill the process
-                                if (!prc.HasExited)
-                                {
-                                    this._log.LogDebug("Watcher {Watcher}: Force killing process {Process}", this.Name, cmd);
-                                    prc.Kill(true);
-                                }
-                                throw;
-                            }
-                        }
+                            await this.RunProcessAsync(cmd, cancellationToken);
                         this._log.LogInformation("Watcher {Watcher}: Done executing commands");
                     }
                     else
@@ -137,6 +123,70 @@ namespace TehGM.Fsriev.Services
             finally
             {
                 this._lock.Release();
+            }
+        }
+
+        private async Task RunProcessAsync(string command, CancellationToken cancellationToken)
+        {
+            // execute and wait
+            using Process prc = this._terminal.Create(command, this._workingDirectory);
+
+            if (this._options.ShowCommandOutput)
+            {
+                prc.StartInfo.RedirectStandardOutput = true;
+                prc.StartInfo.RedirectStandardError = true;
+                prc.OutputDataReceived += (sender, e) => HandleProcessOutput(e.Data, false);
+                prc.ErrorDataReceived += (sender, e) => HandleProcessOutput(e.Data, true);
+            }
+
+            try
+            {
+                prc.Start();
+                if (this._options.ShowCommandOutput)
+                {
+                    prc.BeginOutputReadLine();
+                    prc.BeginErrorReadLine();
+                }
+                await prc.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
+                if (prc.ExitCode != 0)
+                    this._log.LogError("Watcher {Watcher}: Process exited with error code {Code}", this.Name, prc.ExitCode);
+                else
+                    this._log.LogTrace("Watcher {Watcher}: Done executing process");
+            }
+            catch (OperationCanceledException)
+            {
+                // if didn't exit, but watcher is disposing, then force kill the process
+                if (!prc.HasExited)
+                {
+                    this._log.LogDebug("Watcher {Watcher}: Force killing process {Process}", this.Name, command);
+                    prc.Kill(true);
+                }
+                throw;
+            }
+        }
+
+        private void HandleProcessOutput(string output, bool isError)
+        {
+            if (output == null)
+                return;
+
+            lock (_outputLock)
+            {
+                CommandOutputMode mode = this._applicationOptions.CommandOutputMode;
+                if ((mode & CommandOutputMode.Console) == CommandOutputMode.Console)
+                {
+                    ConsoleColor previousColor = Console.ForegroundColor;
+                    if (isError)
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine(output);
+                    if (isError)
+                        Console.ForegroundColor = previousColor;
+                }
+                if ((mode & CommandOutputMode.Log) == CommandOutputMode.Log)
+                {
+                    LogLevel level = isError ? LogLevel.Error : this._applicationOptions.CommandOutputLevel;
+                    this._log.Log(level, output);
+                }
             }
         }
 

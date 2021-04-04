@@ -17,9 +17,6 @@ namespace TehGM.Fsriev.Logging
 
         public static void EnableUnhandledExceptionLogging()
         {
-            if (Log.Logger != null)
-                return;
-
             // add default logger for errors that happen before host runs
             string dir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             Log.Logger = new LoggerConfiguration()

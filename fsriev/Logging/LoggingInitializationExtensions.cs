@@ -9,18 +9,34 @@ namespace TehGM.Fsriev.Logging
     public static class LoggingInitializationExtensions
     {
         private const string _sectionName = "Logging";
+        private const string _logsPathProperty = "LogsDirectory";
 
         public static IHostBuilder ConfigureSerilog(this IHostBuilder builder)
             => builder.UseSerilog(ConfigureSerilog, true);
+
+        private static string GetDefaultLogPath(string logFileName)
+        {
+            string dir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+            return Path.Combine(dir, "TehGM/fsriev/logs/", GetLogFileName(logFileName));
+        }
+
+        private static string GetLogFileName(string logFileName)
+            => $"{logFileName}-.log";
 
         public static void ConfigureSerilog(HostBuilderContext context, LoggerConfiguration config)
         {
             if (context.Configuration.GetSection(_sectionName).Exists())
                 config.ReadFrom.Configuration(context.Configuration, _sectionName);
             else
-                config
-                    .AddSharedConfiguration()
-                    .AddFileDefaults("log");
+            {
+                string dir = GetDefaultLogPath("log");
+                string logsPath = context.Configuration.GetValue<string>(_logsPathProperty, null);
+                if (!string.IsNullOrWhiteSpace(logsPath))
+                    dir = Path.Combine(Environment.ExpandEnvironmentVariables(logsPath), GetLogFileName("log"));
+
+                config.AddSharedConfiguration();
+                config.AddFileDefaults(dir);
+            }
         }
 
         private static LoggerConfiguration AddSharedConfiguration(this LoggerConfiguration config)
@@ -33,16 +49,13 @@ namespace TehGM.Fsriev.Logging
                 .WriteTo.Console();
         }
 
-        private static LoggerConfiguration AddFileDefaults(this LoggerConfiguration config, string logFileName)
+        private static LoggerConfiguration AddFileDefaults(this LoggerConfiguration config, string path)
         {
             if (config == null)
                 throw new ArgumentNullException(nameof(config));
-            if (string.IsNullOrWhiteSpace(logFileName))
-                throw new ArgumentNullException(nameof(logFileName));
-            // get file path
-            string dir = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            string path = Path.Combine(dir, "TehGM/fsriev/logs/", $"{logFileName}-.log");
-            // build config
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentNullException(nameof(path));
+
             return config.WriteTo.Async(sink =>
                 sink.File(path,
                     fileSizeLimitBytes: 1048576,        // 1MB
@@ -56,7 +69,7 @@ namespace TehGM.Fsriev.Logging
             // add default logger for errors that happen before host runs
             Log.Logger = new LoggerConfiguration()
                 .AddSharedConfiguration()
-                .AddFileDefaults("unhandled")
+                .AddFileDefaults(GetDefaultLogPath("unhandled"))
                 .CreateLogger();
             // capture unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;

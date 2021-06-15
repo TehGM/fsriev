@@ -1,9 +1,20 @@
 {
   "Logging": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File" ],
     "MinimumLevel": {
-      "Default": "Debug"
+      "Default": "Debug",
+      "Override": {
+        "Microsoft": "Warning",
+        "Microsoft.Hosting.Lifetime": "Warning"
+      }
     },
+    "Enrich": [
+      "FromLogContext"
+    ],
     "WriteTo": [
+      {
+        "Name": "Console"
+      },
       {
         "Name": "Async",
         "Args": {

@@ -5,7 +5,7 @@
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>TehGM.Fsriev</RootNamespace>
     <AssemblyName>fsriev</AssemblyName>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>TehGM</Authors>
     <Description>A simple but highly configurable file watch utility</Description>
     <Copyright>Copyright (c) 2021 TehGM</Copyright>
@@ -13,11 +13,10 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/TehGM/fsriev</PackageProjectUrl>
     <PackageTags>watch, filewatch</PackageTags>
-    <PackageReleaseNotes>- Added displaying command output.
-- Working directory is now pre-calculated on worker creation.
-- Normalize path slashes on config load.
-- Fix fallback log not being initialized on some systems.
-- Fix some log messages inconsitencies.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Log configuration is now built into application to avoid cross-system issues.
+- New LogsDirectory configuration property to allow easy change of logs path.
+- logsettings.json file is now optional and will fully overwrite default log settings. It'll no longer be included with fsriev by default.
+- Errors when loading configuration will now be logged to startup-error-&lt;date&gt;.log instead of unhandled-&lt;date&gt;.log</PackageReleaseNotes>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>

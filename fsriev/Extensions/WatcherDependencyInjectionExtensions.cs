@@ -33,13 +33,13 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 foreach (WatcherOptions watcher in options.Watchers)
                 {
-                    // normalize paths
-                    watcher.FolderPath = NormalizePath(watcher.FolderPath);
-                    watcher.WorkingDirectory = NormalizePath(watcher.WorkingDirectory);
-
                     // expand paths
                     watcher.FolderPath = ExpandPath(watcher.FolderPath);
                     watcher.WorkingDirectory = ExpandPath(watcher.WorkingDirectory);
+
+                    // normalize paths
+                    watcher.FolderPath = NormalizePath(watcher.FolderPath);
+                    watcher.WorkingDirectory = NormalizePath(watcher.WorkingDirectory);
 
                     // verify used filters
                     if (watcher.FileFilters == null)

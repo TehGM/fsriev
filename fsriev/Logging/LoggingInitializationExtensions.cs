@@ -69,7 +69,7 @@ namespace TehGM.Fsriev.Logging
             // add default logger for errors that happen before host runs
             Log.Logger = new LoggerConfiguration()
                 .AddSharedConfiguration()
-                .AddFileDefaults(GetDefaultLogPath("unhandled"))
+                .AddFileDefaults(GetDefaultLogPath("startup-error"))
                 .CreateLogger();
             // capture unhandled exceptions
             AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;

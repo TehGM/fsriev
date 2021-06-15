@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             private static string NormalizePath(string path)
             {
-                if (path == null)
+                if (string.IsNullOrWhiteSpace(path))
                     return null;
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

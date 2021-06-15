@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,11 +66,27 @@ namespace TehGM.Fsriev.Services
                     this._log.LogDebug("Disabled watchers: {Count}", disabledCount);
                 foreach (WatcherOptions opts in enabledWatchers)
                 {
+                    string watcherName = opts.GetName();
                     try
                     {
+                        if (string.IsNullOrWhiteSpace(opts.FolderPath))
+                        {
+                            this._log.LogError("Watcher {Watcher} has no {Property} configured - please check your configuration!", watcherName, nameof(opts.FolderPath));
+                            break;
+                        }
+                        if (!Directory.Exists(opts.FolderPath))
+                        {
+                            this._log.LogError("Watcher {Watcher} has specified {Property} that does not exist - please check your configuration!", watcherName, nameof(opts.FolderPath));
+                            break;
+                        }
+                        if (!string.IsNullOrWhiteSpace(opts.WorkingDirectory) && !Directory.Exists(opts.WorkingDirectory))
+                        {
+                            this._log.LogError("Watcher {Watcher} has specified {Property} that does not exist - please check your configuration!", watcherName, nameof(opts.WorkingDirectory));
+                            break;
+                        }
                         this._watchers.Add(new Watcher(opts, this._options.CurrentValue, this._terminal, this._watcherLog));
                     }
-                    catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", opts.GetName())) { }
+                    catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", watcherName)) { }
                 }
                 if (wasRunning)
                     this.StartWatchersInternal();

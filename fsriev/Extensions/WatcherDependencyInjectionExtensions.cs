@@ -37,6 +37,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     watcher.FolderPath = NormalizePath(watcher.FolderPath);
                     watcher.WorkingDirectory = NormalizePath(watcher.WorkingDirectory);
 
+                    // expand paths
+                    watcher.FolderPath = ExpandPath(watcher.FolderPath);
+                    watcher.WorkingDirectory = ExpandPath(watcher.WorkingDirectory);
+
                     // verify used filters
                     if (watcher.FileFilters == null)
                         watcher.FileFilters = _defaultFileFilters;
@@ -45,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             private static string NormalizePath(string path)
             {
-                if (path == null)
+                if (string.IsNullOrWhiteSpace(path))
                     return null;
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -55,6 +59,14 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 // fallback: just return unchanged
                 return path;
+            }
+
+            private static string ExpandPath(string path)
+            {
+                if (string.IsNullOrWhiteSpace(path))
+                    return path;
+
+                return Environment.ExpandEnvironmentVariables(path);
             }
         }
     }

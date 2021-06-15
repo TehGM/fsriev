@@ -10,9 +10,9 @@ fsriev uses [ASP.NET Core's Configuration system](https://docs.microsoft.com/en-
 See [releases](https://github.com/TehGM/fsriev/releases/) to download the latest version for your machine.  
 Alternatively, [build](#Building) the project yourself.
 
-### Configuration
+## Configuration
 The primary means of configuring fsriev is through [appsettings.json](fsriev/appsettings.json) file.
-#### Workers Config
+### Workers Config
 Each directory to watch needs to be added as a new JSON object to `Watchers` array.
 
 Property Name | Type   | Required? | Default Value   | Description
@@ -29,25 +29,28 @@ WorkingDirectory | string | No | Value of `FolderPath` | Working directory that 
 ShowCommandOutput | bool | No | true | Whether output of ran commands should be displayed.
 Commands | array of strings | No | | Commands to execute when a file change has been detected. Commands are executed in order, regardless if previous command executed correctly or not. *Note: if no command is added, a warning will be output to logs.*
 
-#### Other Config
+### Other Config
 There are a few properties that can be configured ***outside*** of `Watchers` array.
 
 Property Name | Type   | Required? | Default Value   | Description
 :------------:|:------:|:---------:|:---------------:|------------
 CommandOutputMode | string/int | No | Console | How command output should be displayed. Supported values are `Console`, `Log`. If you run fsriev manually, in terminal etc, "Console" is recommended. If you depend on log files to see the output, use "Log". *Note: you can technically use both at once (`Console,Log`), but it is not recommended. This might be useful if logging to console is disabled in [Logging configuration](#logging).*
 CommandOutputLevel | string/int | No | Information | *Only applicable when `CommandOutputMode` is set to "Log".* Sets the level that command output will be logged as. Valid values are "Verbose", "Debug", "Information", "Warning", "Error" and "Fatal". *Note: this applies only to STDOUT. STDERR will always be logged as Error.*
+LogsDirectory | string | No | null | Changes logs directory. Can use system's environment variables. If not set, will use default value (see [below](#logging)). *Note: if you create logsettings.json, this value will be ignored.*
 
-#### Logging
-By default the application will log to terminal window and to `%PROGRAMDATA%/TehGM/fsriev/logs`.
+### Logging
+By default the application will log to terminal window and to `%PROGRAMDATA%/TehGM/fsriev/logs` on Windows and `/usr/share/TehGM/fsriev/logs` on Linux.  
+If you wish to simply change the folder, you can set it using `LogsDirectory` property in your config. You can use environment variables.
 
-Logging configuration is done via [logsettings.json](fsriev/logsettings.json). See [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration) for more info.
+> Note: Currently changing `LogsDirectory` when **fsriev** is running will have no effect, and restart is required.
 
-Errors that occur when application is loading the configuration will be logged to `%PROGRAMDATA%/TehGM/fsriev/logs`.
+#### Advanced
+Application will use default log settings (log to console and file, keep max 30 difles of max 1MB each, etc). If you wish to further customize your logging settings, you can create a new `logsettings.json` file in **fsriev** directory. See [here](fsriev/logsettings.Development.json) for example of how to configure your `logsettings.json` file.  
+See [Serilog.Settings.Configuration](https://github.com/serilog/serilog-settings-configuration) for more info.
 
-> Note: On Windows `%PROGRAMDATA%` will most likely be `C:\ProgramData`.
-> Currently `%PROGRAMDATA%` appears to be broken when used in [logsettings.json](fsriev/logsettings.json) on Linux, due to a likely bug in Serilog configuration library. Refer to [this issue](https://github.com/serilog/serilog-settings-configuration/issues/257) for more info.
+> Note: if `logsettings.json` file exists, application will completely ignore its default configuration as well as `LogsDirectory` property. This is to allow full customization of log config.
 
-### Important Notes
+## Important Notes
 - Do **NOT** close fsriev by pressing X if any of the commands is still running. Due to terminal limitations, fsriev will not have any chance to kill command process.  
 Instead, send shut down signal to fsriev - for example by pressing `Ctrl+C`. Doing so will notify fsriev to kill commands before exiting.
 - Currently, the default application config contains example configuration. It will most likely log an error due to directory not existing. Simply update your configuration to solve this.

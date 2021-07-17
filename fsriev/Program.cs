@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,18 +25,44 @@ namespace TehGM.Fsriev
             Console.WriteLine("Starting {0} host. Press Ctrl+C to stop and exit.", Name); ;
             Console.WriteLine();
 
-            IHost host = Host.CreateDefaultBuilder(args)
+            IHost host = new HostBuilder()
+                .UseContentRoot(Directory.GetCurrentDirectory())
+                .ConfigureHostConfiguration(builder =>
+                {
+                    // add env variables
+                    builder.AddEnvironmentVariables("DOTNET_");
+
+                    // add args
+                    builder.AddCommandLine(args);
+                })
                 .ConfigureAppConfiguration((context, builder) =>
                 {
+                    // add app settings
+                    builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                    builder.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
                     // add log settings
                     builder.AddJsonFile("logsettings.json", optional: true, reloadOnChange: true);
                     builder.AddJsonFile($"logsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+                    // add env variables
+                    builder.AddEnvironmentVariables();
+                    builder.AddEnvironmentVariables("FSRIEV_");
+
+                    // add args
+                    builder.AddCommandLine(args);
                 })
                 .ConfigureSerilog()
                 .ConfigureServices((context, services) =>
                 {
                     services.Configure<ApplicationOptions>(context.Configuration);
                     services.AddWatchers();
+                })
+                .UseDefaultServiceProvider((context, options) =>
+                {
+                    bool isDevelopment = context.HostingEnvironment.IsDevelopment();
+                    options.ValidateScopes = isDevelopment;
+                    options.ValidateOnBuild = isDevelopment;
                 })
                 .Build();
             await host.RunAsync().ConfigureAwait(false);

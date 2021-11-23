@@ -72,22 +72,28 @@ namespace TehGM.Fsriev.Services
                         if (string.IsNullOrWhiteSpace(opts.FolderPath))
                         {
                             this._log.LogError("Watcher {Watcher} has no {Property} configured - please check your configuration!", watcherName, nameof(opts.FolderPath));
-                            break;
+                            continue;
                         }
                         if (!Directory.Exists(opts.FolderPath))
                         {
                             this._log.LogError("Watcher {Watcher} has specified {Property} that does not exist - please check your configuration!", watcherName, nameof(opts.FolderPath));
-                            break;
+                            continue;
                         }
                         if (!string.IsNullOrWhiteSpace(opts.WorkingDirectory) && !Directory.Exists(opts.WorkingDirectory))
                         {
                             this._log.LogError("Watcher {Watcher} has specified {Property} that does not exist - please check your configuration!", watcherName, nameof(opts.WorkingDirectory));
-                            break;
+                            continue;
                         }
                         this._watchers.Add(new Watcher(opts, this._options.CurrentValue, this._terminal, this._watcherLog));
                     }
                     catch (Exception ex) when (ex.LogAsError(this._log, "Error when creating watcher {Watcher}", watcherName)) { }
                 }
+
+                this._log.LogInformation("Successfully initialized {Count} watchers", enabledCount);
+                int erroredCount = enabledCount - this._watchers.Count;
+                if (erroredCount != 0)
+                    this._log.LogWarning("{ErrorsCount} watchers failed to initialize", erroredCount);
+
                 if (wasRunning)
                     this.StartWatchersInternal();
             }

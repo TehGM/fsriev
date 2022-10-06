@@ -28,7 +28,7 @@ namespace TehGM.Fsriev.Services
         private bool _disposed;
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly object _outputLock = new object();
+        private static readonly object _outputLock = new object();
 
         public Watcher(WatcherOptions options, ApplicationOptions applicationOptions, ITerminal terminal, ILogger log)
         {
